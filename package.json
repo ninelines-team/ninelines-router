@@ -1,0 +1,28 @@
+{
+	"name": "ninelines-router",
+	"version": "0.0.1",
+	"description": "JavaScript router",
+	"keywords": [
+		"js",
+		"router",
+		"history"
+	],
+	"author": "Dmitry Artemov <d.artemov@9-lines.com>",
+	"license": "ISC",
+	"homepage": "https://github.com/ninelines-team/ninelines-router#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ninelines-team/ninelines-router.git"
+	},
+	"bugs": {
+		"url": "https://github.com/ninelines-team/ninelines-router/issues"
+	},
+	"main": "src/index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"dependencies": {
+		"path-to-regexp": "^2.1.0",
+		"url-parse": "^1.2.0"
+	}
+}
