@@ -432,7 +432,7 @@ export class Router extends EventEmitter {
 	}
 
 	bindLinks() {
-		document.querySelectorAll('[data-router-link]').forEach((link) => {
+		Array.from(document.querySelectorAll('[data-router-link]')).forEach((link) => {
 			if (!link.isBound) {
 				link.isBound = true;
 
