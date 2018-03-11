@@ -17,20 +17,20 @@
 	"bugs": {
 		"url": "https://github.com/ninelines-team/ninelines-router/issues"
 	},
-	"main": "dist/ninelines-router.umd.js",
-	"jsnext:main": "dist/ninelines-router.es.js",
+	"main": "dist/ninelines-router.js",
 	"scripts": {
-		"js": "rollup --config",
-		"build": "npm run js",
+		"build": "webpack --mode production",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"dependencies": {
-		"babel-core": "6.26.0",
-		"babel-plugin-external-helpers": "6.22.0",
-		"babel-preset-env": "1.6.1",
 		"path-to-regexp": "2.2.0",
-		"rollup": "0.56.5",
-		"rollup-plugin-babel": "3.0.3",
 		"url-parse": "1.2.0"
+	},
+	"devDependencies": {
+		"babel-core": "6.26.0",
+		"babel-loader": "7.1.4",
+		"babel-preset-env": "1.6.1",
+		"webpack": "4.1.1",
+		"webpack-cli": "2.0.11"
 	}
 }

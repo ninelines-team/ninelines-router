@@ -14,6 +14,9 @@ export class Router extends EventEmitter {
 		this.query = null;
 
 		this.handlers = {
+			leave: [],
+			beforeEnter: [],
+			enter: [],
 			notFound: [],
 		};
 	}
@@ -331,41 +334,57 @@ export class Router extends EventEmitter {
 
 				if (transition) {
 					transition.trigger('start', [prevState, nextState])
-						.then(Promise.all([
-							() => transition.trigger('leave', [prevState, nextState]),
-							() => Promise.resolve(this.route ? this.route.trigger('leave', [prevState, nextState]) : null),
+						.then(() => Promise.all([
+							this.trigger('leave', [prevState, nextState]),
+							transition.trigger('leave', [prevState, nextState]),
+							Promise.resolve(this.route ? this.route.trigger('leave', [prevState, nextState]) : null),
 						]))
-						.then(Promise.all([
-							() => transition.trigger('beforeEnter', [prevState, nextState]),
-							() => route.trigger('beforeEnter', [prevState, nextState]),
+						.then(() => Promise.all([
+							this.trigger('beforeEnter', [prevState, nextState]),
+							transition.trigger('beforeEnter', [prevState, nextState]),
+							route.trigger('beforeEnter', [prevState, nextState]),
 						]))
 						.then(() => {
 							this.route = route;
 							this.query = url.query;
 							this.params = params;
 
-							if (method === 'push' || method === 'replace') {
+							if ((method === 'push' && path !== location.pathname + location.search + location.hash) || method === 'replace') {
+								console.log(`> history.${method}State(null, '', "${path}")`);
+
 								history[`${method}State`](null, '', path);
 							}
 						})
-						.then(Promise.all([
-							() => transition.trigger('enter', [prevState, nextState]),
-							() => route.trigger('enter', [prevState, nextState]),
+						.then(() => Promise.all([
+							this.trigger('enter', [prevState, nextState]),
+							transition.trigger('enter', [prevState, nextState]),
+							route.trigger('enter', [prevState, nextState]),
 						]))
 						.then(() => transition.trigger('complete', [prevState, nextState]));
 				} else {
-					Promise.resolve(this.route ? this.route.trigger('leave', [prevState, nextState]) : null)
-						.then(() => route.trigger('beforeEnter', [prevState, nextState]))
+					Promise.all([
+						this.trigger('leave', [prevState, nextState]),
+						Promise.resolve(this.route ? this.route.trigger('leave', [prevState, nextState]) : null),
+					])
+						.then(() => Promise.all([
+							this.trigger('beforeEnter', [prevState, nextState]),
+							route.trigger('beforeEnter', [prevState, nextState]),
+						]))
 						.then(() => {
 							this.route = route;
 							this.params = params;
 							this.query = url.query;
 
-							if (method === 'push' || method === 'replace') {
+							if ((method === 'push' && path !== location.pathname + location.search + location.hash) || method === 'replace') {
+								console.log(`> history.${method}State(null, '', "${path}")`);
+
 								history[`${method}State`](null, '', path);
 							}
 						})
-						.then(() => route.trigger('enter', [prevState, nextState]));
+						.then(() => Promise.all([
+							this.trigger('enter', [prevState, nextState]),
+							route.trigger('enter', [prevState, nextState]),
+						]));
 				}
 			}
 		}
@@ -438,7 +457,7 @@ export class Router extends EventEmitter {
 
 				link.addEventListener('click', (event) => {
 					event.preventDefault();
-					this.navigate(link.href);
+					this.navigate(link.getAttribute('href'));
 				});
 			}
 		});
