@@ -22,15 +22,19 @@ export class Router extends EventEmitter {
 	}
 
 	/**
-	 * @param {string|Route|{path, name, onBeforeEnter, onEnter, onLeave}} path
+	 * @param {string|Route|{path, name, onBeforeEnter, onEnter, onLeave}|null} path
 	 * @param {string|Function|{name, onBeforeEnter, onEnter, onLeave}} [name]
 	 * @param {Function|{onBeforeEnter, onEnter, onLeave}} [onBeforeEnter]
 	 * @param {Function} [onEnter]
 	 * @param {Function} [onLeave]
-	 * @returns {Route}
+	 * @returns {Route|null}
 	 */
 	addRoute(path, name, onBeforeEnter, onEnter, onLeave) {
 		let route;
+
+		if (path === null) {
+			return null;
+		}
 
 		if (typeof path === 'string') {
 			route = this.routes.find((route) => route.path === path);
@@ -150,11 +154,11 @@ export class Router extends EventEmitter {
 			} else {
 				from = this.addRoute(from);
 			}
-		} else if (from instanceof Route) {
+		} else if (from instanceof Route || from === null) {
 			from = this.addRoute(from);
 		} else if (from instanceof Transition) {
 			transition = this.transitions.find((transition) => (
-				transition.from.path === from.from.path &&
+				(transition.from === from.from || transition.from && from.from && transition.from.path === from.from.path) &&
 				transition.to.path === from.to.path
 			));
 
@@ -178,7 +182,7 @@ export class Router extends EventEmitter {
 			throw new Error('Параметр from должен иметь тип string|Route|Transition|Object');
 		}
 
-		if (from instanceof Route && (typeof to === 'string' || to instanceof Route)) {
+		if ((from instanceof Route || from === null) && (typeof to === 'string' || to instanceof Route)) {
 			if (typeof to === 'string') {
 				let route = this.routes.find((route) => route.name === to);
 
@@ -192,7 +196,7 @@ export class Router extends EventEmitter {
 			}
 
 			transition = this.transitions.find((transition) => (
-				transition.from.path === from.path &&
+				(transition.from === from || transition.from && from && transition.from.path === from.path) &&
 				transition.to.path === to.path
 			));
 
@@ -350,8 +354,6 @@ export class Router extends EventEmitter {
 							this.params = params;
 
 							if ((method === 'push' && path !== location.pathname + location.search + location.hash) || method === 'replace') {
-								console.log(`> history.${method}State(null, '', "${path}")`);
-
 								history[`${method}State`](null, '', path);
 							}
 						})
@@ -376,8 +378,6 @@ export class Router extends EventEmitter {
 							this.query = url.query;
 
 							if ((method === 'push' && path !== location.pathname + location.search + location.hash) || method === 'replace') {
-								console.log(`> history.${method}State(null, '', "${path}")`);
-
 								history[`${method}State`](null, '', path);
 							}
 						})
@@ -447,7 +447,9 @@ export class Router extends EventEmitter {
 			path = route.generatePath(params, query, hash);
 		}
 
-		this.resolve(path, method);
+		if (path !== location.pathname + location.search + location.hash) {
+			this.resolve(path, method);
+		}
 	}
 
 	bindLinks() {
