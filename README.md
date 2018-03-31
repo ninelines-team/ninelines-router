@@ -36,9 +36,9 @@ import {Router} from 'ninelines-router';
 let router = new Router();
 ```
 
-> При отсутствии модульной системы библиотека (`dist/ninelines-router.js`) экспортирует `Router` в глобальный объект `ninelines`:
+> При отсутствии модульной системы библиотека (`dist/ninelines-router.js`) экспортирует `Router` в глобальный объект `ninelines.router`:
 > ```js
-> let router = new ninelines.Router();
+> let router = new ninelines.router.Router();
 > ```
 
 Далее создаем необходимые маршруты:
