@@ -8,7 +8,10 @@ module.exports = {
 	output: {
 		path: path.resolve(__dirname, 'dist'),
 		filename: '[name].js',
-		library: 'ninelines',
+		library: [
+			'ninelines',
+			'router',
+		],
 		libraryTarget: 'umd',
 	},
 	module: {
