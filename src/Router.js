@@ -14,9 +14,11 @@ export class Router extends EventEmitter {
 		this.query = null;
 
 		this.handlers = {
+			start: [],
 			leave: [],
 			beforeEnter: [],
 			enter: [],
+			complete: [],
 			notFound: [],
 		};
 	}
@@ -337,7 +339,10 @@ export class Router extends EventEmitter {
 				));
 
 				if (transition) {
-					transition.trigger('start', [prevState, nextState])
+					Promise.all([
+						this.trigger('start', [prevState, nextState]),
+						transition.trigger('start', [prevState, nextState]),
+					])
 						.then(() => Promise.all([
 							this.trigger('leave', [prevState, nextState]),
 							transition.trigger('leave', [prevState, nextState]),
@@ -362,12 +367,16 @@ export class Router extends EventEmitter {
 							transition.trigger('enter', [prevState, nextState]),
 							route.trigger('enter', [prevState, nextState]),
 						]))
-						.then(() => transition.trigger('complete', [prevState, nextState]));
+						.then(() => Promise.all([
+							this.trigger('complete', [prevState, nextState]),
+							transition.trigger('complete', [prevState, nextState]),
+						]));
 				} else {
-					Promise.all([
-						this.trigger('leave', [prevState, nextState]),
-						Promise.resolve(this.route ? this.route.trigger('leave', [prevState, nextState]) : null),
-					])
+					this.trigger('start', [prevState, nextState])
+						.then(() => Promise.all([
+							this.trigger('leave', [prevState, nextState]),
+							Promise.resolve(this.route ? this.route.trigger('leave', [prevState, nextState]) : null),
+						]))
 						.then(() => Promise.all([
 							this.trigger('beforeEnter', [prevState, nextState]),
 							route.trigger('beforeEnter', [prevState, nextState]),
@@ -384,7 +393,8 @@ export class Router extends EventEmitter {
 						.then(() => Promise.all([
 							this.trigger('enter', [prevState, nextState]),
 							route.trigger('enter', [prevState, nextState]),
-						]));
+						]))
+						.then(() => this.trigger('complete', [prevState, nextState]));
 				}
 			}
 		}
