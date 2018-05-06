@@ -5,10 +5,13 @@ import {EventEmitter} from './EventEmitter';
 export class Route extends EventEmitter {
 	/**
 	 * @param {string} path
-	 * @param {string} [name]
-	 * @param {Object} [options]
+	 * @param {string} name?
+	 * @param {Function} onBeforeEnter?
+	 * @param {Function} onEnter?
+	 * @param {Function} onLeave?
+	 * @param {Object} options?
 	 */
-	constructor(path, name, options) {
+	constructor({path, name, onBeforeEnter, onEnter, onLeave, options} = {}) {
 		super();
 
 		this.path = path;
@@ -22,6 +25,18 @@ export class Route extends EventEmitter {
 			enter: [],
 			leave: [],
 		};
+
+		if (onBeforeEnter) {
+			this.on('beforeEnter', onBeforeEnter);
+		}
+
+		if (onEnter) {
+			this.on('enter', onEnter);
+		}
+
+		if (onLeave) {
+			this.on('leave', onLeave);
+		}
 	}
 
 	/**
@@ -46,8 +61,8 @@ export class Route extends EventEmitter {
 
 	/**
 	 * @param {Object} params
-	 * @param {Object} [query]
-	 * @param {string} [hash]
+	 * @param {Object} query?
+	 * @param {string} hash?
 	 * @returns {string}
 	 */
 	generatePath(params, query, hash) {

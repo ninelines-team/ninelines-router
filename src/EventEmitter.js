@@ -16,7 +16,7 @@ export class EventEmitter {
 
 	/**
 	 * @param {string} eventName
-	 * @param {Function} [handler]
+	 * @param {Function} handler?
 	 */
 	off(eventName, handler) {
 		if (handler) {
@@ -34,7 +34,7 @@ export class EventEmitter {
 
 	/**
 	 * @param {string} eventName
-	 * @param {Array} [params]
+	 * @param {Array} params?
 	 * @returns {Promise}
 	 */
 	trigger(eventName, params = []) {
