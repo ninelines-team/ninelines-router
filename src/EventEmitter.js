@@ -23,6 +23,7 @@ export class EventEmitter {
 	/**
 	 * @param {string} eventName
 	 * @param {Function} handler?
+	 * @returns {EventEmitter}
 	 */
 	off(eventName, handler = null) {
 		if (handler) {
