@@ -41,16 +41,17 @@ export class EventEmitter {
 	/**
 	 * @param {string} eventName
 	 * @param {Array} params?
+	 * @param {*} context?
 	 * @returns {Promise}
 	 */
-	trigger(eventName, params = []) {
+	trigger(eventName, params = [], context = null) {
 		if (!this.handlers[eventName]) {
 			this.handlers[eventName] = [];
 		}
 
 		return Promise.all(this.handlers[eventName].map((handler) => {
 			return new Promise((resolve, reject) => {
-				let result = handler(...params);
+				let result = context ? handler.call(context, ...params) : handler(...params);
 
 				if (result === false) {
 					reject();
