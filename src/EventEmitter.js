@@ -9,7 +9,13 @@ export class EventEmitter {
 	 * @returns {EventEmitter}
 	 */
 	on(eventName, handler) {
-		this.handlers[eventName].push(handler);
+		if (!this.handlers[eventName]) {
+			this.handlers[eventName] = [];
+		}
+
+		if (handler) {
+			this.handlers[eventName].push(handler);
+		}
 
 		return this;
 	}
@@ -38,6 +44,10 @@ export class EventEmitter {
 	 * @returns {Promise}
 	 */
 	trigger(eventName, params = []) {
+		if (!this.handlers[eventName]) {
+			this.handlers[eventName] = [];
+		}
+
 		return Promise.all(this.handlers[eventName].map((handler) => {
 			return new Promise((resolve, reject) => {
 				let result = handler(...params);
