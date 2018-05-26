@@ -56,57 +56,6 @@ export class Router extends EventEmitter {
 	}
 
 	/**
-	 * @param {string} path
-	 * @returns {Route|undefined}
-	 */
-	getRouteByPath(path) {
-		return this.routes.find((route) => route.path === path);
-	}
-
-	/**
-	 * @param {string} name
-	 * @returns {Route|undefined}
-	 */
-	getRouteByName(name) {
-		return this.routes.find((route) => name && route.name === name);
-	}
-
-	/**
-	 * @param {Route} from
-	 * @param {Route} to
-	 * @returns {Transition|undefined}
-	 */
-	getTransitionByRoute(from, to) {
-		return this.transitions.find((transition) => (
-			transition.from === from && transition.to === to
-		));
-	}
-
-	/**
-	 * @param {string} fromPath
-	 * @param {string} toPath
-	 * @returns {Transition|undefined}
-	 */
-	getTransitionByRoutePath(fromPath, toPath) {
-		return this.transitions.find((transition) => (
-			fromPath === null && transition.from === null ||
-			transition.from && transition.from.path === fromPath && transition.to.path === toPath
-		));
-	}
-
-	/**
-	 * @param {string} fromName
-	 * @param {string} toName
-	 * @returns {Transition|undefined}
-	 */
-	getTransitionByRouteName(fromName, toName) {
-		return this.transitions.find((transition) => (
-			fromName === null && transition.from === null ||
-			transition.from && transition.from.name === fromName && transition.to.name === toName
-		));
-	}
-
-	/**
 	 * @param {Route|{path: string, name?: string, onBeforeEnter?: Function, onEnter?: Function, onLeave?: Function, options?: Object}} route
 	 * @returns {Route|null}
 	 */
@@ -172,6 +121,57 @@ export class Router extends EventEmitter {
 		this.transitions.push(transition);
 
 		return transition;
+	}
+
+	/**
+	 * @param {string} path
+	 * @returns {Route|undefined}
+	 */
+	getRouteByPath(path) {
+		return this.routes.find((route) => route.path === path);
+	}
+
+	/**
+	 * @param {string} name
+	 * @returns {Route|undefined}
+	 */
+	getRouteByName(name) {
+		return this.routes.find((route) => name && route.name === name);
+	}
+
+	/**
+	 * @param {Route} from
+	 * @param {Route} to
+	 * @returns {Transition|undefined}
+	 */
+	getTransitionByRoute(from, to) {
+		return this.transitions.find((transition) => (
+			transition.from === from && transition.to === to
+		));
+	}
+
+	/**
+	 * @param {string} fromPath
+	 * @param {string} toPath
+	 * @returns {Transition|undefined}
+	 */
+	getTransitionByRoutePath(fromPath, toPath) {
+		return this.transitions.find((transition) => (
+			fromPath === null && transition.from === null ||
+			transition.from && transition.from.path === fromPath && transition.to.path === toPath
+		));
+	}
+
+	/**
+	 * @param {string} fromName
+	 * @param {string} toName
+	 * @returns {Transition|undefined}
+	 */
+	getTransitionByRouteName(fromName, toName) {
+		return this.transitions.find((transition) => (
+			fromName === null && transition.from === null ||
+			transition.from && transition.from.name === fromName && transition.to.name === toName
+		));
 	}
 
 	/**
