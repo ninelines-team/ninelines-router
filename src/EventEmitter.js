@@ -24,7 +24,7 @@ export class EventEmitter {
 	 * @param {string} eventName
 	 * @param {Function} handler?
 	 */
-	off(eventName, handler) {
+	off(eventName, handler = null) {
 		if (handler) {
 			let index = this.handlers[eventName].indexOf(handler);
 
