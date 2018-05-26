@@ -283,7 +283,7 @@ export class Router extends EventEmitter {
 		}
 
 		if (route) {
-			let path = route.generatePath(params, query, hash);
+			let path = route.generatePath({params, query, hash});
 
 			if (path !== location.pathname + location.search + location.hash) {
 				this.resolve(path, {method});

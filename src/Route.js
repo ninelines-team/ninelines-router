@@ -60,12 +60,12 @@ export class Route extends EventEmitter {
 	}
 
 	/**
-	 * @param {Object} params
+	 * @param {Object} params?
 	 * @param {Object} query?
 	 * @param {string} hash?
 	 * @returns {string}
 	 */
-	generatePath(params, query, hash) {
+	generatePath({params, query, hash} = {}) {
 		let path = this.compiled(params);
 		let url = new URL(path, true);
 
