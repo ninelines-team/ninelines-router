@@ -69,7 +69,9 @@ export class Router extends EventEmitter {
 		}
 
 		let existingRoute = this.routes.find((existingRoute) => (
-			existingRoute.path === route.path || route.name && existingRoute.name === route.name
+			existingRoute === route ||
+			existingRoute.path === route.path ||
+			route.name && existingRoute.name === route.name
 		));
 
 		if (existingRoute) {
@@ -98,6 +100,8 @@ export class Router extends EventEmitter {
 		transition.to = this.addRoute(transition.to);
 
 		let existingTransition = this.transitions.find((existingTransition) => (
+			existingTransition === transition
+			||
 			(
 				existingTransition.from === transition.from ||
 				existingTransition.from && transition.from &&
@@ -278,7 +282,9 @@ export class Router extends EventEmitter {
 	navigate(route, {params, query, hash, method = 'push'} = {}) {
 		if (!(route instanceof Route)) {
 			route = this.routes.find((existingRoute) => (
-				existingRoute.path === route.path || route.name && existingRoute.name === route.name
+				existingRoute === route ||
+				existingRoute.path === route.path ||
+				route.name && existingRoute.name === route.name
 			));
 		}
 
