@@ -223,64 +223,42 @@ export class Router extends EventEmitter {
 
 				let transition = this.getTransitionByRoutes(this.route, route);
 
-				if (transition) {
-					Promise.all([
-						this.trigger('start', [prevState, nextState]),
-						transition.trigger('start', [prevState, nextState]),
-					])
-						.then(() => Promise.all([
-							this.trigger('leave', [prevState, nextState]),
-							transition.trigger('leave', [prevState, nextState]),
-							Promise.resolve(this.route ? this.route.trigger('leave', [prevState, nextState]) : null),
-						]))
-						.then(() => Promise.all([
-							this.trigger('beforeEnter', [prevState, nextState]),
-							transition.trigger('beforeEnter', [prevState, nextState]),
-							route.trigger('beforeEnter', [prevState, nextState]),
-						]))
-						.then(() => {
-							this.route = route;
-							this.query = url.query;
-							this.params = params;
+				Promise.all([
+					this.trigger('start', [prevState, nextState]),
+					transition ? transition.trigger('start', [prevState, nextState]) : null,
+				])
+					.then(() => Promise.all([
+						this.trigger('leave', [prevState, nextState]),
+						transition ? transition.trigger('leave', [prevState, nextState]) : null,
+						this.route ? this.route.trigger('leave', [prevState, nextState]) : null,
+					]))
+					.then(() => Promise.all([
+						this.trigger('beforeEnter', [prevState, nextState]),
+						transition ? transition.trigger('beforeEnter', [prevState, nextState]) : null,
+						route.trigger('beforeEnter', [prevState, nextState]),
+					]))
+					.then(() => {
+						this.route = route;
+						this.params = params;
+						this.query = url.query;
 
-							if ((method === 'push' && path !== location.pathname + location.search + location.hash) || method === 'replace') {
-								history[`${method}State`](null, '', path);
-							}
-						})
-						.then(() => Promise.all([
-							this.trigger('enter', [prevState, nextState]),
-							transition.trigger('enter', [prevState, nextState]),
-							route.trigger('enter', [prevState, nextState]),
-						]))
-						.then(() => Promise.all([
-							this.trigger('complete', [prevState, nextState]),
-							transition.trigger('complete', [prevState, nextState]),
-						]));
-				} else {
-					this.trigger('start', [prevState, nextState])
-						.then(() => Promise.all([
-							this.trigger('leave', [prevState, nextState]),
-							Promise.resolve(this.route ? this.route.trigger('leave', [prevState, nextState]) : null),
-						]))
-						.then(() => Promise.all([
-							this.trigger('beforeEnter', [prevState, nextState]),
-							route.trigger('beforeEnter', [prevState, nextState]),
-						]))
-						.then(() => {
-							this.route = route;
-							this.params = params;
-							this.query = url.query;
-
-							if ((method === 'push' && path !== location.pathname + location.search + location.hash) || method === 'replace') {
-								history[`${method}State`](null, '', path);
-							}
-						})
-						.then(() => Promise.all([
-							this.trigger('enter', [prevState, nextState]),
-							route.trigger('enter', [prevState, nextState]),
-						]))
-						.then(() => this.trigger('complete', [prevState, nextState]));
-				}
+						if (
+							(method === 'push' && path !== location.pathname + location.search + location.hash)
+							||
+							method === 'replace'
+						) {
+							history[`${method}State`](null, '', path);
+						}
+					})
+					.then(() => Promise.all([
+						this.trigger('enter', [prevState, nextState]),
+						transition ? transition.trigger('enter', [prevState, nextState]) : null,
+						route.trigger('enter', [prevState, nextState]),
+					]))
+					.then(() => Promise.all([
+						this.trigger('complete', [prevState, nextState]),
+						transition ? transition.trigger('complete', [prevState, nextState]) : null,
+					]));
 			}
 		}
 
