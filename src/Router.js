@@ -71,7 +71,7 @@ export class Router extends EventEmitter {
 		let existingRoute = this.routes.find((existingRoute) => (
 			existingRoute === route ||
 			existingRoute.path === route.path ||
-			route.name && existingRoute.name === route.name
+			existingRoute.name && existingRoute.name === route.name
 		));
 
 		if (existingRoute) {
