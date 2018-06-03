@@ -320,11 +320,14 @@ export class Router extends EventEmitter {
 		});
 	}
 
+	/**
+	 * @returns {Promise}
+	 */
 	start() {
 		this.bindLinks();
 		this.listen();
 
-		this.resolve(location.pathname + location.search + location.hash, {
+		return this.resolve(location.pathname + location.search + location.hash, {
 			method: 'none',
 		});
 	}
