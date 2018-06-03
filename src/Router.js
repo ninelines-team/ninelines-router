@@ -165,7 +165,7 @@ export class Router extends EventEmitter {
 	 * @param {Route} to
 	 * @returns {Transition|undefined}
 	 */
-	getTransitionByRoute(from, to) {
+	getTransitionByRoutes(from, to) {
 		return this.transitions.find((transition) => (
 			transition.from === from && transition.to === to
 		));
@@ -176,7 +176,7 @@ export class Router extends EventEmitter {
 	 * @param {string} toPath
 	 * @returns {Transition|undefined}
 	 */
-	getTransitionByRoutePath(fromPath, toPath) {
+	getTransitionByRoutePaths(fromPath, toPath) {
 		return this.transitions.find((transition) => (
 			fromPath === null && transition.from === null ||
 			transition.from && transition.from.path === fromPath && transition.to.path === toPath
@@ -188,7 +188,7 @@ export class Router extends EventEmitter {
 	 * @param {string} toName
 	 * @returns {Transition|undefined}
 	 */
-	getTransitionByRouteName(fromName, toName) {
+	getTransitionByRouteNames(fromName, toName) {
 		return this.transitions.find((transition) => (
 			fromName === null && transition.from === null ||
 			transition.from && transition.from.name === fromName && transition.to.name === toName
@@ -221,7 +221,7 @@ export class Router extends EventEmitter {
 					query: url.query,
 				};
 
-				let transition = this.getTransitionByRoute(this.route, route);
+				let transition = this.getTransitionByRoutes(this.route, route);
 
 				if (transition) {
 					Promise.all([
