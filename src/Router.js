@@ -96,8 +96,25 @@ export class Router extends EventEmitter {
 			transition = new Transition(transition);
 		}
 
-		transition.from = this.addRoute(transition.from);
-		transition.to = this.addRoute(transition.to);
+		if (typeof transition.from === 'string') {
+			transition.from = this.getRouteByName(transition.from)
+				|| this.getRouteByPath(transition.from)
+				|| this.addRoute({
+					path: transition.from,
+				});
+		} else {
+			transition.from = this.addRoute(transition.from);
+		}
+
+		if (typeof transition.to === 'string') {
+			transition.to = this.getRouteByName(transition.to)
+				|| this.getRouteByPath(transition.to)
+				|| this.addRoute({
+					path: transition.to,
+				});
+		} else {
+			transition.to = this.addRoute(transition.to);
+		}
 
 		let existingTransition = this.transitions.find((existingTransition) => (
 			existingTransition === transition
