@@ -314,13 +314,18 @@ export class Router extends EventEmitter {
 
 	listen() {
 		window.addEventListener('popstate', () => {
-			this.resolve(location.pathname + location.search + location.hash, 'none');
+			this.resolve(location.pathname + location.search + location.hash, {
+				method: 'none',
+			});
 		});
 	}
 
 	start() {
 		this.bindLinks();
 		this.listen();
-		this.resolve(location.pathname + location.search + location.hash);
+
+		this.resolve(location.pathname + location.search + location.hash, {
+			method: 'none',
+		});
 	}
 }
