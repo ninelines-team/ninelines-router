@@ -274,28 +274,26 @@ export class Router extends EventEmitter {
 	}
 
 	/**
-	 * @param {Route|string} route
+	 * @param {Route|string} path
 	 * @param {Object} params?
 	 * @param {Object} query?
 	 * @param {string} hash?
 	 * @param {string|boolean} method?
 	 * @returns {Promise}
 	 */
-	navigate(route, {params, query, hash, method = 'push'} = {}) {
-		if (!(route instanceof Route)) {
-			route = this.routes.find((existingRoute) => (
-				existingRoute === route ||
-				existingRoute.path === route.path ||
-				route.name && existingRoute.name === route.name
-			));
-		}
+	navigate(path, {params, query, hash, method = 'push'} = {}) {
+		let route = this.routes.find((existingRoute) => (
+			existingRoute === path ||
+			existingRoute.path === path ||
+			existingRoute.name && existingRoute.name === path
+		));
 
 		if (route) {
-			let path = route.generatePath({params, query, hash});
+			path = route.generatePath({params, query, hash});
+		}
 
-			if (path !== location.pathname + location.search + location.hash) {
-				return this.resolve(path, {method});
-			}
+		if (path !== location.pathname + location.search + location.hash) {
+			return this.resolve(path, {method});
 		}
 
 		return Promise.resolve();
