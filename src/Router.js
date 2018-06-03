@@ -198,10 +198,12 @@ export class Router extends EventEmitter {
 	/**
 	 * @param {string} path
 	 * @param {string} method?
+	 * @returns {Promise}
 	 */
 	resolve(path, {method = 'push'} = {}) {
 		let url = new URL(path, true);
 		let routeFound = false;
+		let promises = [];
 
 		for (let route of this.routes) {
 			let params = route.execPath(url.pathname);
@@ -223,48 +225,52 @@ export class Router extends EventEmitter {
 
 				let transition = this.getTransitionByRoutes(this.route, route);
 
-				Promise.all([
-					this.trigger('start', [prevState, nextState]),
-					transition ? transition.trigger('start', [prevState, nextState]) : null,
-				])
-					.then(() => Promise.all([
-						this.trigger('leave', [prevState, nextState]),
-						transition ? transition.trigger('leave', [prevState, nextState]) : null,
-						this.route ? this.route.trigger('leave', [prevState, nextState]) : null,
-					]))
-					.then(() => Promise.all([
-						this.trigger('beforeEnter', [prevState, nextState]),
-						transition ? transition.trigger('beforeEnter', [prevState, nextState]) : null,
-						route.trigger('beforeEnter', [prevState, nextState]),
-					]))
-					.then(() => {
-						this.route = route;
-						this.params = params;
-						this.query = url.query;
+				promises.push(
+					Promise.all([
+						this.trigger('start', [prevState, nextState]),
+						transition ? transition.trigger('start', [prevState, nextState]) : null,
+					])
+						.then(() => Promise.all([
+							this.trigger('leave', [prevState, nextState]),
+							transition ? transition.trigger('leave', [prevState, nextState]) : null,
+							this.route ? this.route.trigger('leave', [prevState, nextState]) : null,
+						]))
+						.then(() => Promise.all([
+							this.trigger('beforeEnter', [prevState, nextState]),
+							transition ? transition.trigger('beforeEnter', [prevState, nextState]) : null,
+							route.trigger('beforeEnter', [prevState, nextState]),
+						]))
+						.then(() => {
+							this.route = route;
+							this.params = params;
+							this.query = url.query;
 
-						if (
-							(method === 'push' && path !== location.pathname + location.search + location.hash)
-							||
-							method === 'replace'
-						) {
-							history[`${method}State`](null, '', path);
-						}
-					})
-					.then(() => Promise.all([
-						this.trigger('enter', [prevState, nextState]),
-						transition ? transition.trigger('enter', [prevState, nextState]) : null,
-						route.trigger('enter', [prevState, nextState]),
-					]))
-					.then(() => Promise.all([
-						this.trigger('complete', [prevState, nextState]),
-						transition ? transition.trigger('complete', [prevState, nextState]) : null,
-					]));
+							if (
+								(method === 'push' && path !== location.pathname + location.search + location.hash)
+								||
+								method === 'replace'
+							) {
+								history[`${method}State`](null, '', path);
+							}
+						})
+						.then(() => Promise.all([
+							this.trigger('enter', [prevState, nextState]),
+							transition ? transition.trigger('enter', [prevState, nextState]) : null,
+							route.trigger('enter', [prevState, nextState]),
+						]))
+						.then(() => Promise.all([
+							this.trigger('complete', [prevState, nextState]),
+							transition ? transition.trigger('complete', [prevState, nextState]) : null,
+						]))
+				);
 			}
 		}
 
 		if (!routeFound) {
-			this.trigger('notFound', [path, url.query]);
+			promises.push(this.trigger('notFound', [path, url.query]));
 		}
+
+		return Promise.all(promises);
 	}
 
 	/**
@@ -273,6 +279,7 @@ export class Router extends EventEmitter {
 	 * @param {Object} query?
 	 * @param {string} hash?
 	 * @param {string|boolean} method?
+	 * @returns {Promise}
 	 */
 	navigate(route, {params, query, hash, method = 'push'} = {}) {
 		if (!(route instanceof Route)) {
@@ -287,9 +294,11 @@ export class Router extends EventEmitter {
 			let path = route.generatePath({params, query, hash});
 
 			if (path !== location.pathname + location.search + location.hash) {
-				this.resolve(path, {method});
+				return this.resolve(path, {method});
 			}
 		}
+
+		return Promise.resolve();
 	}
 
 	bindLinks() {
