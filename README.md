@@ -5,7 +5,7 @@
 Особенности:
 
 * Параметризованные URL (благодаря библиотеке [path-to-regexp](https://github.com/pillarjs/path-to-regexp));
-* События с поддержкой Promise;
+* Поддержка Promise;
 * Удобная работа с URL и GET-параметрами (благодаря библиотекам [url-parse](https://github.com/unshiftio/url-parse) и [querystringify](https://github.com/unshiftio/querystringify));
 * Именованные маршруты;
 * Поддержка создания переходов для предзаданных маршрутов.
@@ -44,16 +44,25 @@ let router = new Router();
 Далее создаем необходимые маршруты:
 
 ```js
-router.addRoute('/', () => {
-    // ...
+router.addRoute({
+    path: '/',
+    onEnter() {
+        // ...
+    },
 });
 
-router.addRoute('/about', () => {
-    // ...
+router.addRoute({
+    path: '/about',
+    onEnter() {
+        // ...
+    },
 });
 
-router.addRoute('/contacts', () => {
-    // ...
+router.addRoute({
+    path: '/contacts',
+    onEnter() {
+        // ...
+    },
 });
 ```
 
@@ -68,10 +77,13 @@ router.start();
 Роутер поддерживает создание маршрутов с параметризованными URL.
 
 ```js
-router.addRoute('/article/:id', (prevState, currentState) => {
-    let id = currentState.params.id;
+router.addRoute({
+    path: '/article/:id',
+    onEnter(prevState, currentState) {
+        let id = currentState.params.id;
 
-    // ...
+        // ...
+    },
 });
 ```
 
@@ -94,14 +106,17 @@ router.addRoute('/article/:id', (prevState, currentState) => {
 Пример:
 
 ```js
-router.addRoute('/article/:id', (prevState, currentState) => {
-    // При переходе по ссылке /article/42
-    // currentState.params === {id: '42'}
-    // currentState.query === {}
+router.addRoute({
+    path: '/article/:id',
+    onEnter(prevState, currentState) {
+        // При переходе по ссылке /article/42
+        // currentState.params === {id: '42'}
+        // currentState.query === {}
 
-    // При переходе по ссылке /article/42?x=10&y=4&z=8
-    // currentState.params === {id: '42'}
-    // currentState.query === {x: '10', y: '4', z: '8'}
+        // При переходе по ссылке /article/42?x=10&y=4&z=8
+        // currentState.params === {id: '42'}
+        // currentState.query === {x: '10', y: '4', z: '8'}
+    },
 });
 ```
 
@@ -112,16 +127,28 @@ router.addRoute('/article/:id', (prevState, currentState) => {
 Роутер поддерживает создание именованных маршрутов:
 
 ```js
-router.addRoute('/', 'home', () => {
-    // ...
+router.addRoute({
+    path: '/',
+    name: 'home',
+    onEnter() {
+        // ...
+    },
 });
 
-router.addRoute('/about', 'about', () => {
-    // ...
+router.addRoute({
+    path: '/about',
+    name: 'about',
+    onEnter() {
+        // ...
+    },
 });
 
-router.addRoute('/article/:id', 'article', (prevState, currentState) => {
-    // ...
+router.addRoute({
+    path: '/article/:id',
+    name: 'article',
+    onEnter(prevState, currentState) {
+        // ...
+    },
 });
 ```
 
@@ -136,7 +163,9 @@ router.navigate('/article/42');
 
 // Первым параметром можно передать имя маршрута
 router.navigate('article', {
-    id: 42,
+    params: {
+        id: 42,
+    },
 });
 ```
 
@@ -164,25 +193,8 @@ router.bindLinks();
 Пример:
 
 ```js
-router.addRoute('/', (prevState, currentState) => {
-    // enter
-});
-
-router.addRoute('/about', (prevState, currentState) => {
-    // enter
-}, (currentState, nextState) => {
-    // leave
-});
-
-router.addRoute('/contacts', (currentState, nextState) => {
-    // beforeEnter
-}, (prevState, currentState) => {
-    // enter
-}, (currentState, nextState) => {
-    // leave
-});
-
-router.addRoute('/article/:id', {
+router.addRoute({
+    path: '/',
     onBeforeEnter(currentState, nextState) {
         // ...
     },
@@ -218,24 +230,6 @@ router.on('notFound', (path) => {
 router.trigger('notFound', [location.pathname]);
 ```
 
-Можно передать дополнительные параметры:
-
-```js
-router.on('notFound', (path, state) => {
-    // ...
-});
-
-router.trigger('notFound', [
-    location.pathname,
-    {
-        route: router.getRoute('article'),
-        params: {
-            id: 42,
-        },
-    }
-]);
-```
-
 ### Использование Promise
 
 При необходимости из любого события можно вернуть `Promise`:
@@ -243,7 +237,8 @@ router.trigger('notFound', [
 ```js
 let pageHome = document.getElementById('page-home');
 
-router.addRoute('/', {
+router.addRoute({
+    path: '/',
     onEnter() {
         return new Promise((resolve) => {
             pageHome.classList.remove('is-hidden');
@@ -281,44 +276,72 @@ router.addRoute('/', {
 `Transition` используется для обработки предзаданных переходов.
 
 ```js
-router.addRoute('/', () => {
-    // ...
+router.addRoute({
+    path: '/',
 });
 
-router.addRoute('/about', () => {
-    // ...
+router.addRoute({
+    path: '/about',
 });
 
-router.addRoute('/article/:id', 'article', (prevState, currentState) => {
-    // ...
+router.addRoute({
+    path: '/article/:id',
+    name: 'article',
 });
 
-router.addRoute('/news/:year/:month/:day', 'news', (prevState, currentState) => {
-    // ...
+router.addRoute({
+    path: '/news/:year/:month/:day',
+    name: 'news',
 });
 
 // Переход / => /about
-router.addTransition('/', '/about', () => {
-    // ...
+router.addTransition({
+    from: '/',
+    to: '/about',
+    onEnter() {
+        // ...
+    },
 });
 
 // Переход article => news
-router.addTransition('article', 'news', () => {
-    // ...
+router.addTransition({
+    from: 'article',
+    to: 'news',
+    onEnter() {
+        // ...
+    },
 });
 ```
 
 Того же результата можно добиться и без `Transition`:
 
 ```js
-router.addRoute('/', () => {
-    // ...
+router.addRoute({
+    path: '/',
 });
 
-router.addRoute('/about', (prevState) => {
-    if (prevState.route.path === '/') {
-        // ...
-    }
+router.addRoute({
+    path: '/about',
+    onEnter(prevState, currentState) {
+        if (prevState.route.path === '/') {
+            // ...
+        }
+    },
+});
+
+router.addRoute({
+    path: '/article/:id',
+    name: 'article',
+});
+
+router.addRoute({
+    path: '/news/:year/:month/:day',
+    name: 'news',
+    onEnter(prevState, currentState) {
+        if (prevState.route.name === 'article') {
+            // ...
+        }
+    },
 });
 ```
 
@@ -336,47 +359,9 @@ router.addRoute('/about', (prevState) => {
 5. `complete`
 
 ```js
-router.addTransition('/', '/about', (prevState, currentState) => {
-    // enter
-});
-
-router.addTransition('/', '/about', (currentState, nextState) => {
-    // leave
-}, (prevState, currentState) => {
-    // enter
-});
-
-router.addTransition('/', '/about', (currentState, nextState) => {
-    // leave
-}, (currentState, nextState) => {
-    // beforeEnter
-}, (prevState, currentState) => {
-    // enter
-});
-
-router.addTransition('/', '/about', (currentState, nextState) => {
-    // leave
-}, (currentState, nextState) => {
-    // beforeEnter
-}, (prevState, currentState) => {
-    // enter
-}, (prevState, currentState) => {
-    // complete
-});
-
-router.addTransition('/', '/about', (currentState, nextState) => {
-    // start
-}, (currentState, nextState) => {
-    // leave
-}, (currentState, nextState) => {
-    // beforeEnter
-}, (prevState, currentState) => {
-    // enter
-}, (prevState, currentState) => {
-    // complete
-});
-
-router.addTransition('/', '/about', {
+router.addTransition({
+    from: '/',
+    to: '/about',
     onStart(currentState, nextState) {
         // ...
     },
@@ -405,62 +390,34 @@ router.addTransition('/', '/about', {
 #### `.off(eventName, handler)`
 #### `.trigger(eventName)`
 #### `.trigger(eventName, params)`
+#### `.trigger(eventName, params, context)`
 
 ### [Route](src/Route.js) (наследуется от `EventEmitter`)
 
-#### `Route(path)`
-#### `Route(path, name)`
-#### `Route(path, name, options)`
+#### `Route({path, name, onBeforeEnter, onEnter, onLeave, options})`
 #### `.execPath(path)`
-#### `.generatePath()`
-#### `.generatePath(params)`
-#### `.generatePath(params, query)`
-#### `.generatePath(params, query, hash)`
+#### `.generatePath({params, query, hash})`
 
 ### [Transition](src/Transition.js) (наследуется от `EventEmitter`)
 
-#### `Transition(from, to)`
+#### `Transition({from, to, onStart, onLeave, onBeforeEnter, onEnter, onComplete})`
 
 ### [Router](src/Router.js) (наследуется от `EventEmitter`)
 
-#### `Router()`
-#### `.addRoute(path)`
-#### `.addRoute(path, name)`
-#### `.addRoute(path, name, onEnter)`
-#### `.addRoute(path, name, onEnter, onLeave)`
-#### `.addRoute(path, name, onBeforeEnter, onEnter, onLeave)`
-#### `.addRoute(path, onEnter)`
-#### `.addRoute(path, onEnter, onLeave)`
-#### `.addRoute(path, onBeforeEnter, onEnter, onLeave)`
-#### `.addRoute(options)`
-#### `.addRoute(path, options)`
-#### `.addRoute(path, name, options)`
+#### `Router({onStart, onLeave, onBeforeEnter, onEnter, onComplete, onNotFound})`
+#### `.addRoute(route)`
+#### `.addRoute({path, name, onBeforeEnter, onEnter, onLeave, options})`
 #### `.addTransition(transition)`
-#### `.addTransition(transition, onEnter)`
-#### `.addTransition(transition, onLeave, onEnter)`
-#### `.addTransition(transition, onLeave, onBeforeEnter, onEnter)`
-#### `.addTransition(transition, onLeave, onBeforeEnter, onEnter, onComplete)`
-#### `.addTransition(transition, onStart, onLeave, onBeforeEnter, onEnter, onComplete)`
-#### `.addTransition(from, to)`
-#### `.addTransition(from, to, onEnter)`
-#### `.addTransition(from, to, onLeave, onEnter)`
-#### `.addTransition(from, to, onLeave, onBeforeEnter, onEnter)`
-#### `.addTransition(from, to, onLeave, onBeforeEnter, onEnter, onComplete)`
-#### `.addTransition(from, to, onStart, onLeave, onBeforeEnter, onEnter, onComplete)`
-#### `.addTransition(options)`
-#### `.addTransition(transition, options)`
-#### `.addTransition(from, to, options)`
+#### `.addTransition({from, to, onStart, onLeave, onBeforeEnter, onEnter, onComplete})`
+#### `.getRouteByPath(path)`
+#### `.getRouteByName(name)`
+#### `.getTransitionByRoutes(from, to)`
+#### `.getTransitionByRoutePaths(fromPath, toPath)`
+#### `.getTransitionByRouteNames(fromName, toName)`
 #### `.resolve(path)`
-#### `.resolve(path, method)`
+#### `.resolve(path, {method})`
 #### `.navigate(path)`
-#### `.navigate(path, params)`
-#### `.navigate(path, params, query)`
-#### `.navigate(path, params, query, hash)`
-#### `.navigate(path, method)`
-#### `.navigate(path, params, method)`
-#### `.navigate(path, params, query, method)`
-#### `.navigate(path, params, query, hash, method)`
-#### `.navigate(options)`
+#### `.navigate(path, {params, query, hash, method})`
 #### `.bindLinks()`
 #### `.listen()`
 #### `.start()`
