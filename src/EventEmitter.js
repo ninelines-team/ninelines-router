@@ -57,6 +57,10 @@ export class EventEmitter {
 				if (result === false) {
 					reject();
 				} else {
+					if (!(result instanceof Promise)) {
+						console.warn(`ninelines-router: event handler should return Promise or false (event = "${eventName}")`);
+					}
+
 					Promise.resolve(result).then(resolve, reject);
 				}
 			});
